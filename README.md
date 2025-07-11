@@ -26,6 +26,9 @@ python3 scripts/ocr_all.py
 ```
 
 По умолчанию используется `tesseract` с языковой моделью `rus+eng`.
+Для работы требуются утилиты `poppler-utils` (`pdftoppm`, `pdfinfo`) и пакет
+`tesseract-ocr`. Если `pdfinfo` отсутствует, скрипт использует библиотеку
+`PyPDF2` для определения числа страниц.
 
 ## Планы
 

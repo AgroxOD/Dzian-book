@@ -3,6 +3,11 @@ import subprocess
 import shutil
 from pathlib import Path
 
+try:
+    from PyPDF2 import PdfReader  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    PdfReader = None
+
 ROOT = Path(__file__).resolve().parents[1]
 CORE_DIR = ROOT / "core_texts"
 OUT_DIR = ROOT / "analyses" / "ocr_full"
@@ -28,14 +33,29 @@ def check_dependencies() -> None:
 
 
 def get_page_count(pdf_path: Path) -> int:
-    info = subprocess.check_output(["pdfinfo", str(pdf_path)], text=True)
-    for line in info.splitlines():
-        if line.startswith("Pages:"):
-            return int(line.split()[1])
-    raise RuntimeError("Cannot determine page count")
+    """Return the number of pages in *pdf_path*.
+
+    Tries ``pdfinfo`` if available, otherwise falls back to ``PyPDF2``.
+    """
+    if shutil.which("pdfinfo"):
+        info = subprocess.check_output(["pdfinfo", str(pdf_path)], text=True)
+        for line in info.splitlines():
+            if line.startswith("Pages:"):
+                return int(line.split()[1])
+    if PdfReader is not None:
+        with open(pdf_path, "rb") as f:
+            reader = PdfReader(f)
+            return len(reader.pages)
+    raise RuntimeError(
+        "Cannot determine page count; install poppler-utils or PyPDF2"
+    )
 
 
 def run_ocr(pdf_path: Path, max_pages: int | None = None):
+    if not shutil.which("pdftoppm"):
+        raise RuntimeError("pdftoppm not found; install poppler-utils")
+    if not shutil.which("tesseract"):
+        raise RuntimeError("tesseract not found; install tesseract-ocr")
     base = pdf_path.stem
     pdf_out = OUT_DIR / base
     pdf_out.mkdir(exist_ok=True)
