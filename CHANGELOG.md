@@ -18,4 +18,5 @@
 - В README перечислены зависимости (`tesseract-ocr` и `poppler-utils`).
 - Добавлены `build_corpus.py` и `create_metadata.py` для лемматизации и создания
   метаданных первой книги. README дополнен описанием их использования.
+- Выполнен анализ первой книги с применением модели «10 мудрецов». Создан файл `analyses/1_analysis_10wise.md` и когнитивное ядро `analyses/1_cognitive_core.md`.
 
