@@ -16,3 +16,4 @@
 - Скрипт `ocr_all.py` теперь определяет число страниц через `PyPDF2`, если
   отсутствует `pdfinfo`.
 - В README перечислены зависимости (`tesseract-ocr` и `poppler-utils`).
+

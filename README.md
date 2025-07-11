@@ -21,6 +21,7 @@
 командой:
 
 ```bash
+sudo apt-get install poppler-utils tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng
 python3 scripts/ocr_all.py
 ```
 
