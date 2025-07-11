@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -7,6 +8,23 @@ CORE_DIR = ROOT / "core_texts"
 OUT_DIR = ROOT / "analyses" / "ocr_full"
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def check_dependencies() -> None:
+    """Ensure required external commands and language packs are available."""
+    for cmd in ["pdfinfo", "pdftoppm", "tesseract"]:
+        if shutil.which(cmd) is None:
+            raise RuntimeError(
+                f"Required command '{cmd}' not found.\n"
+                "Install 'poppler-utils' and 'tesseract-ocr' packages."
+            )
+    tessdata_dir = Path(os.environ.get("TESSDATA_PREFIX", "/usr/share/tesseract-ocr/5/tessdata"))
+    for lang in ["rus.traineddata", "eng.traineddata"]:
+        if not (tessdata_dir / lang).exists():
+            raise RuntimeError(
+                f"Language data '{lang}' not found in {tessdata_dir}.\n"
+                "Install 'tesseract-ocr-rus' and 'tesseract-ocr-eng'."
+            )
 
 
 def get_page_count(pdf_path: Path) -> int:
@@ -57,6 +75,8 @@ def run_ocr(pdf_path: Path, max_pages: int | None = None):
 
 
 if __name__ == "__main__":
+    check_dependencies()
+
     limit = None
     try:
         limit = int(os.environ.get("MAX_PAGES", ""))
