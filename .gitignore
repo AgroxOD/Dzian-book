@@ -1,0 +1,3 @@
+# project-wide ignores
+analyses/run_logs.json
+analyses/glossaries/interim/

@@ -3,6 +3,8 @@ import subprocess
 import shutil
 from pathlib import Path
 
+from .utils import update_log, get_script_log
+
 try:
     from PyPDF2 import PdfReader  # type: ignore
 except Exception:  # pragma: no cover - optional dependency
@@ -62,7 +64,9 @@ def run_ocr(pdf_path: Path, max_pages: int | None = None):
     total_pages = get_page_count(pdf_path)
     if max_pages is not None:
         total_pages = min(total_pages, max_pages)
-    for page in range(1, total_pages + 1):
+    logs = get_script_log('ocr_all.py')
+    last_page = int(logs.get(pdf_path.stem, {}).get('last_page', 0))
+    for page in range(last_page + 1, total_pages + 1):
         txt_file = pdf_out / f"page-{page:04d}.txt"
         if txt_file.exists():
             continue
@@ -92,6 +96,9 @@ def run_ocr(pdf_path: Path, max_pages: int | None = None):
             "rus+eng",
         ], check=True)
         img_file.unlink()
+        last_page = page
+        update_log('ocr_all.py', {pdf_path.stem: {'last_page': last_page}})
+    update_log('ocr_all.py', {pdf_path.stem: {'last_page': last_page}})
 
 
 if __name__ == "__main__":
