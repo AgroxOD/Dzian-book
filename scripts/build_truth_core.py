@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from .utils import update_log
+
 ROOT = Path(__file__).resolve().parents[1]
 ANALYSIS_DIR = ROOT / "analyses"
 OUT_FILE = ANALYSIS_DIR / "truth_core.md"
@@ -29,6 +31,7 @@ def main() -> None:
             lines.append(f"- {bullet}")
         lines.append("")
     OUT_FILE.write_text("\n".join(lines), encoding="utf-8")
+    update_log('build_truth_core.py', {'files': len(files)})
 
 
 if __name__ == "__main__":
