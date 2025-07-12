@@ -1,5 +1,6 @@
 from collections import Counter, defaultdict
 from pathlib import Path
+import os
 import csv
 import spacy
 from spacy.lang.ru.stop_words import STOP_WORDS
@@ -9,6 +10,7 @@ OCR_DIR = ROOT / 'analyses' / 'ocr_full'
 OUT_DIR = ROOT / 'analyses' / 'glossaries'
 
 nlp = spacy.load('ru_core_news_sm', disable=["parser", "ner"])
+nlp.max_length = max(nlp.max_length, 2_000_000)
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -26,14 +28,18 @@ def extract_terms(text: str) -> Counter:
     return counts
 
 
-def process_book(book_id: str) -> Counter:
+def process_book(book_id: str, max_pages: int | None = None) -> Counter:
     book_dir = OCR_DIR / book_id
     if not book_dir.is_dir():
         raise FileNotFoundError(book_dir)
-    text_parts = []
-    for txt in sorted(book_dir.glob('page-*.txt')):
-        text_parts.append(txt.read_text(encoding='utf-8'))
-    return extract_terms("\n".join(text_parts))
+    counts = Counter()
+    pages = sorted(book_dir.glob('page-*.txt'))
+    if max_pages is not None:
+        pages = pages[:max_pages]
+    for txt in pages:
+        text = txt.read_text(encoding='utf-8')
+        counts.update(extract_terms(text))
+    return counts
 
 
 def save_glossary(book_id: str, counts: Counter) -> None:
@@ -48,8 +54,13 @@ def save_glossary(book_id: str, counts: Counter) -> None:
 def main() -> None:
     all_terms: defaultdict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     book_ids = [d.name for d in OCR_DIR.iterdir() if d.is_dir()]
+    limit = None
+    try:
+        limit = int(os.environ.get('MAX_PAGES', ''))
+    except ValueError:
+        pass
     for book_id in sorted(book_ids):
-        counts = process_book(book_id)
+        counts = process_book(book_id, limit)
         save_glossary(book_id, counts)
         for term, cnt in counts.items():
             all_terms[term][book_id] = cnt
