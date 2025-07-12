@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background: #f6f6f6;
+}
+#p-header {
+    background: #ffffff;
+    padding: 10px;
+    border-bottom: 1px solid #a2a9b1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#site-logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+#p-navigation {
+    float: left;
+    width: 200px;
+    background: #f8f9fa;
+    min-height: calc(100vh - 42px);
+    border-right: 1px solid #a2a9b1;
+    padding: 15px;
+    box-sizing: border-box;
+}
+#p-navigation ul {
+    list-style: none;
+    padding: 0;
+}
+#p-navigation ul li {
+    margin: 5px 0;
+}
+#p-navigation ul li a {
+    text-decoration: none;
+    color: #0645ad;
+}
+#p-navigation ul li a:hover {
+    text-decoration: underline;
+}
+#content {
+    margin-left: 220px;
+    padding: 20px;
+}
