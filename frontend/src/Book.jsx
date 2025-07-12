@@ -7,7 +7,7 @@ function Book() {
   const [content, setContent] = useState('')
 
   useEffect(() => {
-    fetch(`/analyses/book${id}.md`)
+    fetch(`analyses/book${id}.md`)
       .then((res) => res.text())
       .then((text) => setContent(marked.parse(text)))
   }, [id])
